@@ -9,7 +9,24 @@ interface MapDashboardProps {
 const ALARM_LIMIT_SECONDS = 60;
 
 const usePersistentTimers = (stations: Station[]) => {
-    const [timers, setTimers] = useState<Record<string, number>>({});
+    const [timers, setTimers] = useState<Record<string, number>>(() => {
+        const initialTimers: Record<string, number> = {};
+        stations.forEach(station => {
+            const operationalPumps = station.bombas
+                .map((b, i) => ({ status: b, inMaintenance: station.bombas_manutencao[i] }))
+                .filter(p => p.status !== null && !p.inMaintenance);
+
+            const anyOperationalPumpOn = operationalPumps.some(p => p.status === 1);
+            
+            const inAlarm = (station.nivel > station.liga) || (station.nivel < station.desliga && anyOperationalPumpOn);
+
+            if (inAlarm) {
+                initialTimers[station.id] = station.tempo_alarme || 0;
+            }
+        });
+        return initialTimers;
+    });
+
     const lastTimestampRef = useRef<number>(Date.now());
 
     useEffect(() => {
@@ -28,14 +45,10 @@ const usePersistentTimers = (stations: Station[]) => {
                         .filter(p => p.status !== null && !p.inMaintenance);
 
                     const anyOperationalPumpOn = operationalPumps.some(p => p.status === 1);
-                    const allOperationalPumpsOff = operationalPumps.every(p => p.status === 0);
-
-                    // High alarm: level is above 'liga' but operational pumps failed to start
-                    const isHighAlarm = station.nivel > station.liga && allOperationalPumpsOff;
-                    // Low alarm: level is below 'desliga' but an operational pump is still running (inefficiently)
-                    const isLowAlarm = station.nivel < station.desliga && anyOperationalPumpOn;
                     
-                    const inAlarm = isHighAlarm || isLowAlarm;
+                    // An alarm is triggered if the level is above the 'liga' threshold,
+                    // or if the level is below the 'desliga' threshold while operational pumps are still running.
+                    const inAlarm = (station.nivel > station.liga) || (station.nivel < station.desliga && anyOperationalPumpOn);
 
                     if (inAlarm) {
                         const newTime = (newTimers[station.id] || station.tempo_alarme || 0) + deltaSeconds;
