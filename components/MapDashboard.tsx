@@ -10,28 +10,33 @@ interface MapDashboardProps {
 const ALARM_LIMIT_SECONDS = 60;
 
 const usePersistentTimers = (stations: Station[]) => {
-    const [timers, setTimers] = useState<Record<string, number>>(() => {
-        const initialTimers: Record<string, number> = {};
-        stations.forEach(station => {
-            const operationalPumps = station.bombas
-                .map((b, i) => ({ status: b, inMaintenance: station.bombas_manutencao[i] }))
-                .filter(p => p.status !== null && !p.inMaintenance);
-
-            const anyOperationalPumpOn = operationalPumps.some(p => p.status === 1);
-            
-            const inAlarm = (station.nivel > station.liga) || (station.nivel < station.desliga && anyOperationalPumpOn);
-
-            if (inAlarm) {
-                initialTimers[station.id] = station.tempo_alarme || 0;
-            }
-        });
-        return initialTimers;
-    });
-
+    const [timers, setTimers] = useState<Record<string, number>>({});
     const lastTimestampRef = useRef<number>(Date.now());
+    const isInitializedRef = useRef(false);
 
     useEffect(() => {
+        // This block runs only once when the component mounts with stations.
+        if (!isInitializedRef.current && stations.length > 0) {
+            const initialTimers: Record<string, number> = {};
+            stations.forEach(station => {
+                const operationalPumps = station.bombas
+                    .map((b, i) => ({ status: b, inMaintenance: station.bombas_manutencao[i] }))
+                    .filter(p => p.status !== null && !p.inMaintenance);
+                const anyOperationalPumpOn = operationalPumps.some(p => p.status === 1);
+                const inAlarm = (station.nivel > station.liga) || (station.nivel < station.desliga && anyOperationalPumpOn);
+
+                if (inAlarm) {
+                    initialTimers[station.id] = station.tempo_alarme || 0;
+                }
+            });
+            setTimers(initialTimers);
+            isInitializedRef.current = true;
+            lastTimestampRef.current = Date.now();
+        }
+
         const interval = setInterval(() => {
+            if (!isInitializedRef.current) return;
+
             const now = Date.now();
             const deltaSeconds = (now - lastTimestampRef.current) / 1000;
             lastTimestampRef.current = now;
@@ -47,19 +52,21 @@ const usePersistentTimers = (stations: Station[]) => {
 
                     const anyOperationalPumpOn = operationalPumps.some(p => p.status === 1);
                     
-                    // An alarm is triggered if the level is above the 'liga' threshold,
-                    // or if the level is below the 'desliga' threshold while operational pumps are still running.
                     const inAlarm = (station.nivel > station.liga) || (station.nivel < station.desliga && anyOperationalPumpOn);
+                    const wasInAlarm = station.id in prevTimers;
 
                     if (inAlarm) {
-                        const newTime = (newTimers[station.id] || station.tempo_alarme || 0) + deltaSeconds;
-                        if (newTimers[station.id] !== newTime) {
-                           newTimers[station.id] = newTime;
-                           timersChanged = true;
+                        if (wasInAlarm) {
+                            newTimers[station.id] = prevTimers[station.id] + deltaSeconds;
+                        } else {
+                            newTimers[station.id] = (station.tempo_alarme || 0) + deltaSeconds;
                         }
-                    } else if (newTimers[station.id] !== undefined) {
-                        delete newTimers[station.id];
                         timersChanged = true;
+                    } else {
+                        if (wasInAlarm) {
+                            delete newTimers[station.id];
+                            timersChanged = true;
+                        }
                     }
                 });
                 
@@ -69,6 +76,7 @@ const usePersistentTimers = (stations: Station[]) => {
 
         return () => clearInterval(interval);
     }, [stations]);
+
 
     return timers;
 };

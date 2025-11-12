@@ -33,14 +33,18 @@ const StationCard: React.FC<StationCardProps> = ({ station, alertLevel, alarmTim
       none: 'bg-white border-slate-300 text-blue-600'
   };
 
+  // When the level is high, the level badge and timer can overlap.
+  // This flag helps move the timer down to avoid the collision.
+  const isLevelHighForTimer = levelPercentage > 75;
+
   return (
     <div className={`relative bg-white rounded-lg shadow-md p-2 flex flex-col gap-2 border ${alertClasses[alertLevel]} transition-all`}>
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-xs font-bold text-slate-700 truncate text-center flex-grow">{nome}</h2>
           {em_bateria && (
-              <div title="On Battery Power" className="flex-shrink-0 w-5 h-5 bg-red-500 rounded-sm flex items-center justify-center animate-blink">
-                  <span className="text-white font-bold text-xs">B</span>
+              <div title="On Battery Power" className="flex-shrink-0 w-6 h-6 bg-red-500 rounded-md flex items-center justify-center animate-pulseYellow border-2 border-transparent">
+                  <span className="text-black font-bold text-sm">B</span>
               </div>
           )}
         </div>
@@ -87,7 +91,7 @@ const StationCard: React.FC<StationCardProps> = ({ station, alertLevel, alarmTim
 
           {/* Alarm Timer Badge */}
           {alertLevel !== 'none' && (
-            <div className="absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-semibold bg-white border border-slate-300 rounded-md text-slate-600">
+            <div className={`absolute right-1 px-1.5 py-0.5 text-[10px] font-semibold bg-white border border-slate-300 rounded-md text-slate-600 transition-all duration-300 ${isLevelHighForTimer ? 'top-8' : 'top-1'}`}>
               ⏱ {Math.floor(alarmTime)}s
             </div>
           )}
