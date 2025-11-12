@@ -1,4 +1,3 @@
-
 export interface Station {
   id: number;
   nome: string;
@@ -9,6 +8,7 @@ export interface Station {
   superior: number;
   inferior: number;
   tempo_alarme: number;
+  em_bateria: boolean;
 }
 
 export interface GeminiIssue {

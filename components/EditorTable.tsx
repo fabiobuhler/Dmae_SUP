@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Station } from '../types';
 
@@ -10,12 +9,15 @@ interface EditorTableProps {
 
 const EditorTable: React.FC<EditorTableProps> = ({ stations, onUpdate, onSave }) => {
 
-  const handlePumpChange = (stationId: number, pumpIndex: number, isChecked: boolean) => {
-    const station = stations.find(s => s.id === stationId);
-    if (!station) return;
-    const newBombas = [...station.bombas];
-    newBombas[pumpIndex] = isChecked ? 1 : 0;
-    onUpdate(stationId, 'bombas', newBombas);
+  const handleBombasTextChange = (id: number, value: string) => {
+    const newBombas = value.split(',').map(s => {
+      const trimmed = s.trim().toLowerCase();
+      if (trimmed === 'null' || trimmed === '') return null;
+      const num = parseInt(trimmed, 10);
+      // Ensure only 1 or 0 are stored for active pumps
+      return isNaN(num) ? null : (num === 1 ? 1 : 0);
+    });
+    onUpdate(id, 'bombas', newBombas);
   };
 
   const handleInputChange = (id: number, field: keyof Station, value: string) => {
@@ -24,6 +26,20 @@ const EditorTable: React.FC<EditorTableProps> = ({ stations, onUpdate, onSave })
       onUpdate(id, field, numValue);
     }
   };
+  
+  const handleBombasToggle = (stationId: number, pumpIndex: number) => {
+    const station = stations.find(s => s.id === stationId);
+    if (!station) return;
+
+    const newBombas = [...station.bombas];
+    const currentStatus = newBombas[pumpIndex];
+
+    if (currentStatus !== null) {
+        newBombas[pumpIndex] = currentStatus === 1 ? 0 : 1;
+        onUpdate(stationId, 'bombas', newBombas);
+    }
+  };
+
 
   return (
     <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg">
@@ -37,6 +53,8 @@ const EditorTable: React.FC<EditorTableProps> = ({ stations, onUpdate, onSave })
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Desliga</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Superior</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Inferior</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Tempo Alarme (s)</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Bateria</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Bombas</th>
             </tr>
           </thead>
@@ -49,16 +67,43 @@ const EditorTable: React.FC<EditorTableProps> = ({ stations, onUpdate, onSave })
                 <td><input type="number" step="0.01" value={station.desliga} onChange={(e) => handleInputChange(station.id, 'desliga', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
                 <td><input type="number" step="0.01" value={station.superior} onChange={(e) => handleInputChange(station.id, 'superior', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
                 <td><input type="number" step="0.01" value={station.inferior} onChange={(e) => handleInputChange(station.id, 'inferior', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
+                <td><input type="number" step="1" value={station.tempo_alarme} onChange={(e) => handleInputChange(station.id, 'tempo_alarme', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
+                <td className="px-4 py-3 whitespace-nowrap text-center">
+                    <input 
+                        type="checkbox" 
+                        checked={station.em_bateria} 
+                        onChange={(e) => onUpdate(station.id, 'em_bateria', e.target.checked)} 
+                        className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                    />
+                </td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex flex-wrap gap-x-4 gap-y-1">
-                    {station.bombas.map((b, i) => (
-                      b === null 
-                        ? <span key={i} className="text-xs text-slate-400">B{i+1} N/A</span>
-                        : <label key={i} className="flex items-center gap-1 text-sm">
-                            <input type="checkbox" checked={b === 1} onChange={(e) => handlePumpChange(station.id, i, e.target.checked)} className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"/>
-                            B{i+1}
-                          </label>
-                    ))}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-wrap gap-2">
+                      {station.bombas.map((b, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleBombasToggle(station.id, i)}
+                          disabled={b === null}
+                          title={`Toggle Bomba ${i + 1}`}
+                          className={`w-24 h-7 rounded-md flex items-center justify-center text-xs font-bold text-white transition-colors
+                            ${b === 1 ? 'bg-red-500 hover:bg-red-600' : ''}
+                            ${b === 0 ? 'bg-green-500 hover:bg-green-600' : ''}
+                            ${b === null ? 'bg-slate-200 text-slate-500 border border-slate-300 cursor-not-allowed' : ''}`}
+                        >
+                          {`Bomba ${i + 1}: ${b === 1 ? 'ON' : b === 0 ? 'OFF' : 'N/A'}`}
+                        </button>
+                      ))}
+                    </div>
+                    <div>
+                        <input
+                            type="text"
+                            value={station.bombas.map(b => b === null ? 'null' : String(b)).join(', ')}
+                            onChange={(e) => handleBombasTextChange(station.id, e.target.value)}
+                            className="w-full max-w-xs p-1 border rounded-md border-slate-300"
+                            placeholder="e.g., 1, 0, null, 1"
+                        />
+                        <p className="text-xs text-slate-500 mt-1">Advanced: Edit array (1, 0, null).</p>
+                    </div>
                   </div>
                 </td>
               </tr>

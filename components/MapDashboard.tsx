@@ -27,7 +27,9 @@ const usePersistentTimers = (stations: Station[]) => {
                     const anyPumpOn = station.bombas.some(b => b === 1);
                     const allPumpsOff = station.bombas.filter(b => b !== null).every(b => b === 0);
                     
+                    // High alarm triggers if level is critical AND pumps failed to start
                     const isHighAlarm = station.nivel > station.superior && allPumpsOff;
+                    // Low alarm only triggers if level is critical AND a pump is running (ineffectively)
                     const isLowAlarm = station.nivel < station.inferior && anyPumpOn;
                     const inAlarm = isHighAlarm || isLowAlarm;
 
