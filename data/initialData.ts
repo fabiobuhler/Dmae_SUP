@@ -2,7 +2,7 @@ import type { Station } from '../types';
 
 const rawStationData: Omit<Station, 'superior' | 'inferior'>[] = [
   {
-    "id": 1, "nome": "1 - RODOVIÁRIA", "nivel": 1.99, "bombas": [1, 1, 0], "bombas_manutencao": [false, false, false], "liga": 1.6, "desliga": 1.0, "tempo_alarme": 43, "em_bateria": false
+    "id": 1, "nome": "1 - RODOVIÁRIA", "nivel": 1.3, "bombas": [1, 1, 0], "bombas_manutencao": [false, false, false], "liga": 1.6, "desliga": 1.0, "tempo_alarme": 0, "em_bateria": false
   },
   {
     "id": 2, "nome": "2 - SÃO JOÃO", "nivel": 1.35, "bombas": [1, 0, 0], "bombas_manutencao": [false, false, false], "liga": 1.6, "desliga": 1.1, "tempo_alarme": 0, "em_bateria": true
@@ -11,10 +11,10 @@ const rawStationData: Omit<Station, 'superior' | 'inferior'>[] = [
     "id": 3, "nome": "3 - SÃO PEDRO", "nivel": 1.3, "bombas": [1, 1, 0], "bombas_manutencao": [false, false, true], "liga": 1.55, "desliga": 1.05, "tempo_alarme": 0, "em_bateria": false
   },
   {
-    "id": 4, "nome": "4 - PARQUE NÁUTICO", "nivel": 0.65, "bombas": [0, 0, 0, 0], "bombas_manutencao": [false, false, false, false], "liga": 1.4, "desliga": 0.7, "tempo_alarme": 0, "em_bateria": false
+    "id": 4, "nome": "4 - PARQUE NÁUTICO", "nivel": 1.15, "bombas": [0, 1, 0, 0], "bombas_manutencao": [false, false, false, false], "liga": 1.4, "desliga": 0.7, "tempo_alarme": 0, "em_bateria": false
   },
   {
-    "id": 5, "nome": "5 - CINCO", "nivel": 0.59, "bombas": [0, 0, 0, 1, null], "bombas_manutencao": [false, false, false, false, false], "liga": 1.0, "desliga": 0.7, "tempo_alarme": 35, "em_bateria": false
+    "id": 5, "nome": "5 - CINCO", "nivel": 0.3, "bombas": [0, 0, 0, 1, null], "bombas_manutencao": [false, false, false, false, false], "liga": 1.0, "desliga": 0.7, "tempo_alarme": 0.35, "em_bateria": false
   },
   {
     "id": 6, "nome": "6 - TREVO", "nivel": 1.12, "bombas": [0, 1, 0, 0, 0], "bombas_manutencao": [false, false, false, false, false], "liga": 1.5, "desliga": 1.0, "tempo_alarme": 0, "em_bateria": false
