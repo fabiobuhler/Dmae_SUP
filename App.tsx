@@ -50,7 +50,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800">
       <Header currentView={view} setView={setView} />
-      <main className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <main className="p-4 sm:p-6 lg:p-8 max-w-screen-2xl mx-auto">
         {renderView()}
       </main>
       <footer className="fixed bottom-0 left-0 right-0 bg-slate-800 text-white p-2 text-center text-xs">

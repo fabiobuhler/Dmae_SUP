@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { Station } from '../types';
 import StationCard from './StationCard';
@@ -24,13 +23,18 @@ const usePersistentTimers = (stations: Station[]) => {
                 let timersChanged = false;
 
                 stations.forEach(station => {
-                    const anyPumpOn = station.bombas.some(b => b === 1);
-                    const allPumpsOff = station.bombas.filter(b => b !== null).every(b => b === 0);
+                    const operationalPumps = station.bombas
+                        .map((b, i) => ({ status: b, inMaintenance: station.bombas_manutencao[i] }))
+                        .filter(p => p.status !== null && !p.inMaintenance);
+
+                    const anyOperationalPumpOn = operationalPumps.some(p => p.status === 1);
+                    const allOperationalPumpsOff = operationalPumps.every(p => p.status === 0);
+
+                    // High alarm: level is above 'liga' but operational pumps failed to start
+                    const isHighAlarm = station.nivel > station.liga && allOperationalPumpsOff;
+                    // Low alarm: level is below 'desliga' but an operational pump is still running (inefficiently)
+                    const isLowAlarm = station.nivel < station.desliga && anyOperationalPumpOn;
                     
-                    // High alarm triggers if level is critical AND pumps failed to start
-                    const isHighAlarm = station.nivel > station.superior && allPumpsOff;
-                    // Low alarm only triggers if level is critical AND a pump is running (ineffectively)
-                    const isLowAlarm = station.nivel < station.inferior && anyPumpOn;
                     const inAlarm = isHighAlarm || isLowAlarm;
 
                     if (inAlarm) {
@@ -59,7 +63,7 @@ const MapDashboard: React.FC<MapDashboardProps> = ({ stations }) => {
     const timers = usePersistentTimers(stations);
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 pb-12">
             {stations.map(station => {
                 const alarmTime = timers[station.id] || 0;
                 let alertLevel: 'none' | 'yellow' | 'red' = 'none';

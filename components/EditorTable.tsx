@@ -22,6 +22,11 @@ const EditorTable: React.FC<EditorTableProps> = ({ stations, onUpdate, onSave })
 
   const handleInputChange = (id: number, field: keyof Station, value: string) => {
     const numValue = parseFloat(value);
+    // Allow input to be temporarily empty or just a minus sign without updating state yet
+    if (value === '' || value === '-') {
+       onUpdate(id, field, value); // Pass string to allow partial input
+       return;
+    }
     if (!isNaN(numValue)) {
       onUpdate(id, field, numValue);
     }
@@ -34,11 +39,20 @@ const EditorTable: React.FC<EditorTableProps> = ({ stations, onUpdate, onSave })
     const newBombas = [...station.bombas];
     const currentStatus = newBombas[pumpIndex];
 
-    if (currentStatus !== null) {
+    if (currentStatus !== null && !station.bombas_manutencao[pumpIndex]) {
         newBombas[pumpIndex] = currentStatus === 1 ? 0 : 1;
         onUpdate(stationId, 'bombas', newBombas);
     }
   };
+
+  const handleBombasMaintenanceToggle = (stationId: number, pumpIndex: number) => {
+    const station = stations.find(s => s.id === stationId);
+    if (!station) return;
+    
+    const newBombasManutencao = [...station.bombas_manutencao];
+    newBombasManutencao[pumpIndex] = !newBombasManutencao[pumpIndex];
+    onUpdate(stationId, 'bombas_manutencao', newBombasManutencao);
+  }
 
 
   return (
@@ -51,8 +65,8 @@ const EditorTable: React.FC<EditorTableProps> = ({ stations, onUpdate, onSave })
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nível (m)</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Liga</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Desliga</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Superior</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Inferior</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Superior</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Inferior</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Tempo Alarme (s)</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Bateria</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Bombas</th>
@@ -65,8 +79,8 @@ const EditorTable: React.FC<EditorTableProps> = ({ stations, onUpdate, onSave })
                 <td><input type="number" step="0.01" value={station.nivel} onChange={(e) => handleInputChange(station.id, 'nivel', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
                 <td><input type="number" step="0.01" value={station.liga} onChange={(e) => handleInputChange(station.id, 'liga', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
                 <td><input type="number" step="0.01" value={station.desliga} onChange={(e) => handleInputChange(station.id, 'desliga', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
-                <td><input type="number" step="0.01" value={station.superior} onChange={(e) => handleInputChange(station.id, 'superior', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
-                <td><input type="number" step="0.01" value={station.inferior} onChange={(e) => handleInputChange(station.id, 'inferior', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 bg-slate-50 text-center font-mono">{station.superior.toFixed(2)}</td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 bg-slate-50 text-center font-mono">{station.inferior.toFixed(2)}</td>
                 <td><input type="number" step="1" value={station.tempo_alarme} onChange={(e) => handleInputChange(station.id, 'tempo_alarme', e.target.value)} className="w-24 p-1 border rounded-md border-slate-300"/></td>
                 <td className="px-4 py-3 whitespace-nowrap text-center">
                     <input 
@@ -80,18 +94,31 @@ const EditorTable: React.FC<EditorTableProps> = ({ stations, onUpdate, onSave })
                   <div className="flex flex-col gap-3">
                     <div className="flex flex-wrap gap-2">
                       {station.bombas.map((b, i) => (
-                        <button
-                          key={i}
-                          onClick={() => handleBombasToggle(station.id, i)}
-                          disabled={b === null}
-                          title={`Toggle Bomba ${i + 1}`}
-                          className={`w-24 h-7 rounded-md flex items-center justify-center text-xs font-bold text-white transition-colors
-                            ${b === 1 ? 'bg-red-500 hover:bg-red-600' : ''}
-                            ${b === 0 ? 'bg-green-500 hover:bg-green-600' : ''}
-                            ${b === null ? 'bg-slate-200 text-slate-500 border border-slate-300 cursor-not-allowed' : ''}`}
-                        >
-                          {`Bomba ${i + 1}: ${b === 1 ? 'ON' : b === 0 ? 'OFF' : 'N/A'}`}
-                        </button>
+                        <div key={i} className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleBombasToggle(station.id, i)}
+                            disabled={b === null || station.bombas_manutencao[i]}
+                            title={`Toggle Bomba ${i + 1}`}
+                            className={`w-24 h-7 rounded-md flex items-center justify-center text-xs font-bold transition-colors
+                              ${station.bombas_manutencao[i] ? 'bg-yellow-400 text-black cursor-not-allowed' : 'text-white'}
+                              ${!station.bombas_manutencao[i] && b === 1 ? 'bg-red-500 hover:bg-red-600' : ''}
+                              ${!station.bombas_manutencao[i] && b === 0 ? 'bg-green-500 hover:bg-green-600' : ''}
+                              ${b === null ? 'bg-slate-200 text-slate-500 border border-slate-300 cursor-not-allowed' : ''}`}
+                          >
+                             {station.bombas_manutencao[i] ? 'MANUT.' : `Bomba ${i + 1}: ${b === 1 ? 'ON' : b === 0 ? 'OFF' : 'N/A'}`}
+                          </button>
+                          <button 
+                            onClick={() => handleBombasMaintenanceToggle(station.id, i)}
+                            disabled={b === null}
+                            title={`Toggle Manutenção Bomba ${i + 1}`}
+                            className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors
+                              ${b === null ? 'bg-slate-200 cursor-not-allowed' : ''}
+                              ${station.bombas_manutencao[i] ? 'bg-yellow-500 text-black' : 'bg-slate-300 hover:bg-slate-400 text-slate-600'}
+                            `}
+                          >
+                           🔧
+                          </button>
+                        </div>
                       ))}
                     </div>
                     <div>

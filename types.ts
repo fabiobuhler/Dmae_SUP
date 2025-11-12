@@ -3,6 +3,7 @@ export interface Station {
   nome: string;
   nivel: number;
   bombas: (number | null)[];
+  bombas_manutencao: boolean[];
   liga: number;
   desliga: number;
   superior: number;
