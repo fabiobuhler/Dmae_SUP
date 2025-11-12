@@ -1,5 +1,5 @@
 {
-  "name": "EBAP Supervisório WEB",
+  "name": "Supervisório WEB EBAP's",
   "description": "An application to monitor, edit, and analyze water pumping station (EBAP) data. It features a real-time dashboard, a data editor, and an AI-powered analyzer using the Gemini API to check data integrity and provide operational suggestions.",
   "requestFramePermissions": []
 }

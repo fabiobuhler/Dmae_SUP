@@ -17,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, setView }) => {
     <header className="bg-slate-800 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-          EBAP Station Monitor & Analyzer
+          Supervisório WEB EBAP's
         </h1>
         <nav className="flex space-x-2 sm:space-x-4 rounded-lg p-1 bg-slate-900/50">
           <button

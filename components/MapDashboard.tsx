@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { Station } from '../types';
 import StationCard from './StationCard';
@@ -76,7 +77,7 @@ const MapDashboard: React.FC<MapDashboardProps> = ({ stations }) => {
     const timers = usePersistentTimers(stations);
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 pb-12">
+        <div className="grid gap-2 sm:gap-3 md:gap-4 pb-12 grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
             {stations.map(station => {
                 const alarmTime = timers[station.id] || 0;
                 let alertLevel: 'none' | 'yellow' | 'red' = 'none';

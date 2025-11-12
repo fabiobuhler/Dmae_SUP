@@ -54,7 +54,7 @@ const App: React.FC = () => {
         {renderView()}
       </main>
       <footer className="fixed bottom-0 left-0 right-0 bg-slate-800 text-white p-2 text-center text-xs">
-        EBAP Station Monitor & Analyzer - React & Gemini API Edition
+        Supervisório WEB EBAP's - React & Gemini API Edition
       </footer>
     </div>
   );
