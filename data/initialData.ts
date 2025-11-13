@@ -14,7 +14,7 @@ const rawStationData: Omit<Station, 'superior' | 'inferior'>[] = [
     "id": 4, "nome": "4 - PARQUE NÁUTICO", "nivel": 1.15, "bombas": [0, 1, 0, 0], "bombas_manutencao": [false, false, false, false], "liga": 1.4, "desliga": 0.7, "tempo_alarme": 0, "em_bateria": false
   },
   {
-    "id": 5, "nome": "5 - CINCO", "nivel": 0.3, "bombas": [0, 0, 0, 1, null], "bombas_manutencao": [false, false, false, false, false], "liga": 1.0, "desliga": 0.7, "tempo_alarme": 35, "em_bateria": false
+    "id": 5, "nome": "5 - CINCO", "nivel": 0.65, "bombas": [0, 0, 0, 1, null], "bombas_manutencao": [false, false, false, false, false], "liga": 1.0, "desliga": 0.7, "tempo_alarme": 35, "em_bateria": false
   },
   {
     "id": 6, "nome": "6 - TREVO", "nivel": 1.12, "bombas": [0, 1, 0, 0, 0], "bombas_manutencao": [false, false, false, false, false], "liga": 1.5, "desliga": 1.0, "tempo_alarme": 0, "em_bateria": false
