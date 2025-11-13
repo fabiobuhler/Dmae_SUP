@@ -2,10 +2,10 @@ import type { Station } from '../types';
 
 const rawStationData: Omit<Station, 'superior' | 'inferior'>[] = [
   {
-    "id": 1, "nome": "EBAP 1", "nivel": 1.9, "bombas": [1, 1, 0], "bombas_manutencao": [false, false, false], "liga": 1.6, "desliga": 1.0, "tempo_alarme": 44, "em_bateria": false
+    "id": 1, "nome": "EBAP 1", "nivel": 1.9, "bombas": [1, 1, 0], "bombas_manutencao": [false, false, false], "liga": 1.6, "desliga": 1.0, "tempo_alarme": 64, "em_bateria": false
   },
   {
-    "id": 2, "nome": "EBAP 2", "nivel": 1.35, "bombas": [1, 0, 0], "bombas_manutencao": [false, false, false], "liga": 1.6, "desliga": 1.1, "tempo_alarme": 0, "em_bateria": true
+    "id": 2, "nome": "EBAP 2", "nivel": 1.0, "bombas": [0, 0, 0], "bombas_manutencao": [false, false, false], "liga": 1.6, "desliga": 1.1, "tempo_alarme": 0, "em_bateria": true
   },
   {
     "id": 3, "nome": "EBAP 3", "nivel": 1.3, "bombas": [1, 1, 0], "bombas_manutencao": [false, false, true], "liga": 1.55, "desliga": 1.05, "tempo_alarme": 0, "em_bateria": false
